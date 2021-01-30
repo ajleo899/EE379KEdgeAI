@@ -32,8 +32,9 @@ torch.manual_seed(random_seed)
 
 # MNIST Dataset (Images and Labels)
 # TODO: Insert here the normalized MNIST dataset
-train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.ToTensor(), download=True)
-test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.ToTensor())
+train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.Compose([transforms.ToTensor(), Normalize(mean=0.1307, std=0.3081)]), download=True)
+test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.Compose([transforms.ToTensor(), Normalize(mean=0.1307, std=0.3081)])
+
 
 # Dataset Loader (Input Pipeline)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
