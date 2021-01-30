@@ -36,8 +36,9 @@ random_seed = 1
 torch.manual_seed(random_seed)
 
 # MNIST Dataset (Images and Labels)
-train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.ToTensor(), download=True)
-test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.ToTensor())
+train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=0.1307, std=0.3081)]), download=True)
+test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=0.1307, std=0.3081)]))
+#print(test_dataset[0])
 
 # Dataset Loader (Input Pipeline)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
@@ -54,6 +55,7 @@ class SimpleFC(nn.Module):
         self.linear4 = nn.Linear(128, num_classes)
         self.drop = nn.Dropout(probability)
 
+
     # Your model only contains a single linear layer
     def forward(self, x):
         out = F.relu(self.linear1(x))
@@ -65,7 +67,7 @@ class SimpleFC(nn.Module):
         out = self.linear4(out)
         return out
 
-probabilities = [0.2,0.5,0.8]
+probabilities = [0.0,0.2,0.5,0.8]
 count = 1
 for rate in probabilities:
 
@@ -156,7 +158,7 @@ for rate in probabilities:
     plt.title('Training and Test Loss; Dropout Rate = ' + str(rate))
     plt.grid(True)
     plt.legend(["Training", "Testing"], loc ="upper right")
-    a.savefig('DroupoutRate_' + str(rate) + '_loss.png')
+    a.savefig('Normalization_' + str(rate) + '_loss.png')
 '''x_val = np.arange(1, num_epochs+1)
 a = plt.figure(1)
 plt.plot(epoch_losses)
