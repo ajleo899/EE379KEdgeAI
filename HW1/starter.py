@@ -5,6 +5,7 @@ import torchvision.transforms as transforms
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 # Argument parser
 parser = argparse.ArgumentParser(description='EE397K HW1 - Starter code')
@@ -72,7 +73,7 @@ for epoch in range(num_epochs):
     train_loss = 0
     # Sets the model in training mode.
     model = model.train()
-    
+    start = time.time()
     for batch_idx, (images, labels) in enumerate(train_loader):
         # Here we vectorize the 28*28 images as several 784-dimensional inputs
         images = images.view(-1, input_size)
@@ -100,7 +101,9 @@ for epoch in range(num_epochs):
                                                                              100. * train_correct / train_total))
     epoch_losses[epoch] = train_loss   
     accuracy_train[epoch] = 100. * train_correct / train_total
-    print(epoch_losses)
+    end = time.time()
+    print("Time to Train: " + str(end - start))
+    #print(epoch_losses)
 
     # Testing phase loop
     test_correct = 0
@@ -130,17 +133,29 @@ for epoch in range(num_epochs):
 
 x_val = np.arange(1, num_epochs+1)
 a = plt.figure(1)
-plt.scatter(x_val,epoch_losses)
-a.show()
-b = plt.figure(2)
-plt.scatter(x_val,epoch_losses_test)
-b.show()
-c = plt.figure(3)
-plt.scatter(x_val, accuracy_train)
-c.show()
-d = plt.figure(4)
-plt.scatter(x_val, accuracy_test)
-d.show()
+plt.plot(epoch_losses)
+#a.show()
+#a.savefig('trainingloss.png')
+plt.plot(epoch_losses_test)
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Training and Test Loss')
+plt.grid(True)
+plt.legend(["Training", "Testing"], loc ="upper right")
+a.savefig('training_testingloss.png')
+#b.show()
+#b.savefig('testingloss.png')
+c = plt.figure(2)
+plt.plot(accuracy_train)
+#a.show()
+#a.savefig('trainingloss.png')
+plt.plot(accuracy_test)
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy %')
+plt.title('Training and Test Accuracy')
+plt.grid(True)
+plt.legend(["Training", "Testing"], loc ="lower right")
+c.savefig('training_testingaccuracy.png')
 input()
 
-plt.close('all')
+#plt.close('all')
