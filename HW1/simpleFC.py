@@ -46,100 +46,118 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch
 
 # Define your model
 class SimpleFC(nn.Module):
-    def __init__(self, input_size, num_classes):
+    def __init__(self, input_size, num_classes, probability):
         super(SimpleFC, self).__init__()
         self.linear1 = nn.Linear(input_size, 512)
         self.linear2 = nn.Linear(512, 256)
         self.linear3 = nn.Linear(256, 128)
         self.linear4 = nn.Linear(128, num_classes)
+        self.drop = nn.Dropout(probability)
 
     # Your model only contains a single linear layer
     def forward(self, x):
         out = F.relu(self.linear1(x))
+        out = self.drop(out)
         out = F.relu(self.linear2(out))
+        out = self.drop(out)
         out = F.relu(self.linear3(out))
+        out = self.drop(out)
         out = self.linear4(out)
         return out
 
+probabilities = [0.2,0.5,0.8]
+count = 1
+for rate in probabilities:
 
-model = SimpleFC(input_size, num_classes)
+    model = SimpleFC(input_size, num_classes, rate)
 
-# Define your loss and optimizer
-criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+    # Define your loss and optimizer
+    criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
-epoch_losses = np.zeros(num_epochs)
-epoch_losses_test = np.zeros(num_epochs)
-accuracy_train = np.zeros(num_epochs)
-accuracy_test = np.zeros(num_epochs)
-
-for epoch in range(num_epochs):
-    # Training phase loop
-    train_correct = 0
-    train_total = 0
-    train_loss = 0
-    # Sets the model in training mode.
-    model = model.train()
-    start = time.time()
-    for batch_idx, (images, labels) in enumerate(train_loader):
-        # Here we vectorize the 28*28 images as several 784-dimensional inputs
-        images = images.view(-1, input_size)
-        # Sets the gradients to zero
-        optimizer.zero_grad()
-        # The actual inference
-        outputs = model(images)
-        # Compute the loss between the predictions (outputs) and the ground-truth labels
-        loss = criterion(outputs, labels)
-        # Do backpropagation to update the parameters of your model
-        loss.backward()
-        # Performs a single optimization step (parameter update)
-        optimizer.step()
-        train_loss += loss.item()
-        # The outputs are one-hot labels, we need to find the actual predicted
-        # labels which have the highest output confidence
-        _, predicted = outputs.max(1)
-        train_total += labels.size(0)
-        train_correct += predicted.eq(labels).sum().item()
-        # Print every 100 steps the following information
-        if (batch_idx + 1) % 100 == 0:
-            print('Epoch: [%d/%d], Step: [%d/%d], Loss: %.4f Acc: %.2f%%' % (epoch + 1, num_epochs, batch_idx + 1,
-                                                                             len(train_dataset) // batch_size,
-                                                                             train_loss / (batch_idx + 1),
-                                                                             100. * train_correct / train_total))
+    epoch_losses = np.zeros(num_epochs)
+    epoch_losses_test = np.zeros(num_epochs)
+    accuracy_train = np.zeros(num_epochs)
+    accuracy_test = np.zeros(num_epochs)
     
-    epoch_losses[epoch] = train_loss   
-    accuracy_train[epoch] = 100. * train_correct / train_total
-    end = time.time()
-    print("Time to Train: " + str(end - start))
-    #print(epoch_losses)
-
-    # Testing phase loop
-    test_correct = 0
-    test_total = 0
-    test_loss = 0
-    # Sets the model in evaluation mode
-    model = model.eval()
-    # Disabling gradient calculation is useful for inference.
-    # It will reduce memory consumption for computations.
-    with torch.no_grad():
-        for batch_idx, (images, labels) in enumerate(test_loader):
+    for epoch in range(num_epochs):
+        # Training phase loop
+        
+        train_correct = 0
+        train_total = 0
+        train_loss = 0
+        # Sets the model in training mode.
+        model = model.train()
+        start = time.time()
+        for batch_idx, (images, labels) in enumerate(train_loader):
             # Here we vectorize the 28*28 images as several 784-dimensional inputs
             images = images.view(-1, input_size)
-            # Perform the actual inference
+            # Sets the gradients to zero
+            optimizer.zero_grad()
+            # The actual inference
             outputs = model(images)
-            # Compute the loss
+            # Compute the loss between the predictions (outputs) and the ground-truth labels
             loss = criterion(outputs, labels)
-            test_loss += loss.item()
+            # Do backpropagation to update the parameters of your model
+            loss.backward()
+            # Performs a single optimization step (parameter update)
+            optimizer.step()
+            train_loss += loss.item()
             # The outputs are one-hot labels, we need to find the actual predicted
             # labels which have the highest output confidence
-            _, predicted = torch.max(outputs.data, 1)
-            test_total += labels.size(0)
-            test_correct += predicted.eq(labels).sum().item()
-    print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
-    epoch_losses_test[epoch] = test_loss
-    accuracy_test[epoch] = 100. * test_correct / test_total
+            _, predicted = outputs.max(1)
+            train_total += labels.size(0)
+            train_correct += predicted.eq(labels).sum().item()
+            # Print every 100 steps the following information
+            if (batch_idx + 1) % 100 == 0:
+                print('Epoch: [%d/%d], Step: [%d/%d], Loss: %.4f Acc: %.2f%%' % (epoch + 1, num_epochs, batch_idx + 1,
+                                                                                len(train_dataset) // batch_size,
+                                                                                train_loss / (batch_idx + 1),
+                                                                                100. * train_correct / train_total))
+        
+        epoch_losses[epoch] = train_loss   
+        accuracy_train[epoch] = 100. * train_correct / train_total
+        end = time.time()
+        print("Time to Train: " + str(end - start))
+        #print(epoch_losses)
 
-x_val = np.arange(1, num_epochs+1)
+        # Testing phase loop
+        test_correct = 0
+        test_total = 0
+        test_loss = 0
+        # Sets the model in evaluation mode
+        model = model.eval()
+        # Disabling gradient calculation is useful for inference.
+        # It will reduce memory consumption for computations.
+        with torch.no_grad():
+            for batch_idx, (images, labels) in enumerate(test_loader):
+                # Here we vectorize the 28*28 images as several 784-dimensional inputs
+                images = images.view(-1, input_size)
+                # Perform the actual inference
+                outputs = model(images)
+                # Compute the loss
+                loss = criterion(outputs, labels)
+                test_loss += loss.item()
+                # The outputs are one-hot labels, we need to find the actual predicted
+                # labels which have the highest output confidence
+                _, predicted = torch.max(outputs.data, 1)
+                test_total += labels.size(0)
+                test_correct += predicted.eq(labels).sum().item()
+        print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
+        epoch_losses_test[epoch] = test_loss
+        accuracy_test[epoch] = 100. * test_correct / test_total
+    x_val = np.arange(1, num_epochs+1)
+    a = plt.figure(count)
+    count = count + 1
+    plt.plot(epoch_losses)
+    plt.plot(epoch_losses_test)
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training and Test Loss; Dropout Rate = ' + str(rate))
+    plt.grid(True)
+    plt.legend(["Training", "Testing"], loc ="upper right")
+    a.savefig('DroupoutRate_' + str(rate) + '_loss.png')
+'''x_val = np.arange(1, num_epochs+1)
 a = plt.figure(1)
 plt.plot(epoch_losses)
 plt.plot(epoch_losses_test)
@@ -162,3 +180,4 @@ c.savefig('training_testingaccuracy_FC.png')
 input()
 
 #plt.close('all')
+'''
