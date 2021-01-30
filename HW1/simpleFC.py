@@ -4,6 +4,9 @@ import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 import torch.nn.functional as F
 import argparse
+import matplotlib.pyplot as plt
+import numpy as np
+import time
 
 # Argument parser
 parser = argparse.ArgumentParser(description='EE397K HW1 - SimpleFC')
@@ -65,6 +68,11 @@ model = SimpleFC(input_size, num_classes)
 criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
+epoch_losses = np.zeros(num_epochs)
+epoch_losses_test = np.zeros(num_epochs)
+accuracy_train = np.zeros(num_epochs)
+accuracy_test = np.zeros(num_epochs)
+
 for epoch in range(num_epochs):
     # Training phase loop
     train_correct = 0
@@ -72,6 +80,7 @@ for epoch in range(num_epochs):
     train_loss = 0
     # Sets the model in training mode.
     model = model.train()
+    start = time.time()
     for batch_idx, (images, labels) in enumerate(train_loader):
         # Here we vectorize the 28*28 images as several 784-dimensional inputs
         images = images.view(-1, input_size)
@@ -97,6 +106,13 @@ for epoch in range(num_epochs):
                                                                              len(train_dataset) // batch_size,
                                                                              train_loss / (batch_idx + 1),
                                                                              100. * train_correct / train_total))
+    
+    epoch_losses[epoch] = train_loss   
+    accuracy_train[epoch] = 100. * train_correct / train_total
+    end = time.time()
+    print("Time to Train: " + str(end - start))
+    #print(epoch_losses)
+
     # Testing phase loop
     test_correct = 0
     test_total = 0
@@ -120,3 +136,29 @@ for epoch in range(num_epochs):
             test_total += labels.size(0)
             test_correct += predicted.eq(labels).sum().item()
     print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
+    epoch_losses_test[epoch] = test_loss
+    accuracy_test[epoch] = 100. * test_correct / test_total
+
+x_val = np.arange(1, num_epochs+1)
+a = plt.figure(1)
+plt.plot(epoch_losses)
+plt.plot(epoch_losses_test)
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Training and Test Loss')
+plt.grid(True)
+plt.legend(["Training", "Testing"], loc ="upper right")
+a.savefig('training_testingloss_FC.png')
+
+c = plt.figure(2)
+plt.plot(accuracy_train)
+plt.plot(accuracy_test)
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy %')
+plt.title('Training and Test Accuracy')
+plt.grid(True)
+plt.legend(["Training", "Testing"], loc ="lower right")
+c.savefig('training_testingaccuracy_FC.png')
+input()
+
+#plt.close('all')
