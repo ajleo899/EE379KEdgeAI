@@ -7,13 +7,14 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import csv
 
 # Argument parser
 parser = argparse.ArgumentParser(description='EE397K HW1 - SimpleFC')
 # Define the mini-batch size, here the size is 128 images per batch
 parser.add_argument('--batch_size', type=int, default=128, help='Number of samples per mini-batch')
 # Define the number of epochs for training
-parser.add_argument('--epochs', type=int, default=25, help='Number of epoch to train')
+parser.add_argument('--epochs', type=int, default=25, help='Number of epoch to train') # 25 epochs default
 # Define the learning rate of your optimizer
 parser.add_argument('--lr', type=float, default=0.01, help='Learning rate')
 args = parser.parse_args()
@@ -70,7 +71,7 @@ class SimpleFC(nn.Module):
 probabilities = [0.0,0.2,0.5,0.8]
 count = 1
 for rate in probabilities:
-
+    print('DROPOUT RATE: ' + rate)
     model = SimpleFC(input_size, num_classes, rate)
 
     # Define your loss and optimizer
@@ -117,10 +118,11 @@ for rate in probabilities:
                                                                                 train_loss / (batch_idx + 1),
                                                                                 100. * train_correct / train_total))
         
-        epoch_losses[epoch] = train_loss   
-        accuracy_train[epoch] = 100. * train_correct / train_total
         end = time.time()
         print("Time to Train: " + str(end - start))
+
+        epoch_losses[epoch] = train_loss   
+        accuracy_train[epoch] = 100. * train_correct / train_total
         #print(epoch_losses)
 
         # Testing phase loop
@@ -148,7 +150,33 @@ for rate in probabilities:
         print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
         epoch_losses_test[epoch] = test_loss
         accuracy_test[epoch] = 100. * test_correct / test_total
-    x_val = np.arange(1, num_epochs+1)
+    
+    # Searching for largest training accuracy over all epochs, to report
+    max = 0
+    for i in range(0, len(accuracy_train)):    
+        # Compare elements of array with max    
+        if(accuracy_train[i] > max):    
+            max = accuracy_train[i];
+    training_acc_result = "Dropout rate: " + str(rate) + ", training accuracy: " + str(max)
+    print(training_acc_result)
+
+    # Searching for largest testing accuracy over all epochs, to report
+    max = 0
+    for i in range(0, len(accuracy_test)):    
+        # Compare elements of array with max    
+        if(accuracy_test[i] > max):    
+            max = accuracy_test[i];
+    testing_acc_result = "Dropout rate: " + str(rate) + ", testing accuracy: " + str(max)
+    print(testing_acc_result)
+    
+    '''# Writing results to a CSV file 
+    with open('P2Q3.csv', mode='w') as employee_file:
+        employee_writer = csv.writer(employee_file, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        employee_writer.writerow(training_acc_result)
+        employee_writer.writerow(testing_acc_result)'''
+    
+    
+    '''x_val = np.arange(1, num_epochs+1)
     a = plt.figure(count)
     count = count + 1
     plt.plot(epoch_losses)
@@ -158,7 +186,7 @@ for rate in probabilities:
     plt.title('Training and Test Loss; Dropout Rate = ' + str(rate))
     plt.grid(True)
     plt.legend(["Training", "Testing"], loc ="upper right")
-    a.savefig('Normalization_' + str(rate) + '_loss.png')
+    a.savefig('Normalization_' + str(rate) + '_loss.png')'''
 '''x_val = np.arange(1, num_epochs+1)
 a = plt.figure(1)
 plt.plot(epoch_losses)
