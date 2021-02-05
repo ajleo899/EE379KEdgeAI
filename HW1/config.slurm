@@ -23,7 +23,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/apps/cuda/10.0/lib64
 source $WORK/HW1_env/bin/activate
 
 # Launch code...
-python $WORK/HW1_files/starter.py --batch_size=128 --epochs=25 --lr=0.01 > $WORK/HW1_files/out
+python $WORK/HW1/starter.py --batch_size=128 --epochs=25 --lr=0.01 > $WORK/HW1/out
 
 # ---------------------------------------------------
 
