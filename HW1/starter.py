@@ -39,9 +39,15 @@ train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.ToTens
 test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.ToTensor())
 
 # Dataset Loader (Input Pipeline)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
+print(len(train_loader))
 
+
+#train_loader = train_loader.to(device)
+#test_loader = test_loader.to(device)
 
 # Define your model
 class LogisticRegression(nn.Module):
@@ -56,7 +62,7 @@ class LogisticRegression(nn.Module):
 
 
 model = LogisticRegression(input_size, num_classes)
-#model = model.to(torch.device('cuda'))
+model = model.to(device)
 
 # Define your loss and optimizer
 criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
@@ -66,6 +72,12 @@ epoch_losses = np.zeros(num_epochs)
 epoch_losses_test = np.zeros(num_epochs)
 accuracy_train = np.zeros(num_epochs)
 accuracy_test = np.zeros(num_epochs)
+
+starter1, ender1 = torch.cuda.Event(enable_timing=True),   torch.cuda.Event(enable_timing=True)
+timings1 = 0
+
+starter1.record()
+
 for epoch in range(num_epochs):
     # Training phase loop
     train_correct = 0
@@ -77,6 +89,7 @@ for epoch in range(num_epochs):
     for batch_idx, (images, labels) in enumerate(train_loader):
         # Here we vectorize the 28*28 images as several 784-dimensional inputs
         images = images.view(-1, input_size)
+        images = images.to(device)
         # Sets the gradients to zero
         optimizer.zero_grad()
         # The actual inference
@@ -105,33 +118,70 @@ for epoch in range(num_epochs):
     print("Time to Train: " + str(end - start))
     #print(epoch_losses)
 
-    # Testing phase loop
-    test_correct = 0
-    test_total = 0
-    test_loss = 0
-    # Sets the model in evaluation mode
-    model = model.eval()
-    # Disabling gradient calculation is useful for inference.
-    # It will reduce memory consumption for computations.
-    with torch.no_grad():
-        for batch_idx, (images, labels) in enumerate(test_loader):
-            # Here we vectorize the 28*28 images as several 784-dimensional inputs
-            images = images.view(-1, input_size)
-            # Perform the actual inference
-            outputs = model(images)
-            # Compute the loss
-            loss = criterion(outputs, labels)
-            test_loss += loss.item()
-            # The outputs are one-hot labels, we need to find the actual predicted
-            # labels which have the highest output confidence
-            _, predicted = torch.max(outputs.data, 1)
-            test_total += labels.size(0)
-            test_correct += predicted.eq(labels).sum().item()
-    print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
-    epoch_losses_test[epoch] = test_loss
-    accuracy_test[epoch] = 100. * test_correct / test_total
+ender1.record()
+torch.cuda.synchronize()
+curr_time = starter1.elapsed_time(ender1)
+timings1 = curr_time
+print('The total time to train: ' + str(timings1))
 
-x_val = np.arange(1, num_epochs+1)
+# Testing phase loop
+test_correct = 0
+test_total = 0
+test_loss = 0
+# Sets the model in evaluation mode
+model = model.eval()
+# Disabling gradient calculation is useful for inference.
+# It will reduce memory consumption for computations.
+
+#Timings for when GPU is in use
+starter2 = torch.cuda.Event(enable_timing=True)
+ender2 = torch.cuda.Event(enable_timing=True)
+#Timings for CPU is in use
+#timings2=np.zeros((len(test_loader),1))
+#timings_cpu = np.zeros((len(test_loader),1))
+
+
+
+with torch.no_grad():
+    for batch_idx, (images, labels) in enumerate(test_loader):
+        #FOR GPU
+        starter2.record()
+        #FOR CPU
+        #starter_cpu = time.time()
+        # Here we vectorize the 28*28 images as several 784-dimensional inputs
+        images = images.view(-1, input_size)
+        images = images.to(device)
+        # Perform the actual inference
+        outputs = model(images)
+        # Compute the loss
+        loss = criterion(outputs, labels)
+        test_loss += loss.item()
+        # The outputs are one-hot labels, we need to find the actual predicted
+        # labels which have the highest output confidence
+        _, predicted = torch.max(outputs.data, 1)
+        test_total += labels.size(0)
+        test_correct += predicted.eq(labels).sum().item()
+        #FOR CPU
+        #ender_cpu = time.time()
+        #timings_cpu[batch_idx] = ender_cpu - starter_cpu
+        #FOR GPU
+        ender2.record()
+        torch.cuda.synchronize()
+        curr_time = starter.elapsed_time(ender2)
+        timings2[batch_idx] = curr_time
+
+
+#Get Average for GPU Timings
+mean_syn = np.sum(timings2) / len(test_loader)
+std_syn = np.std(timings2)
+
+print("Average Inference Time per Image -- GPU: " + str(mean_syn)) 
+#print("Average Inference Time per Image -- CPU: " + str(np.sum(timings_cpu) / len(test_loader))) 
+print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
+epoch_losses_test[epoch] = test_loss
+accuracy_test[epoch] = 100. * test_correct / test_total
+
+'''x_val = np.arange(1, num_epochs+1)
 a = plt.figure(1)
 plt.plot(epoch_losses)
 #a.show()
@@ -159,3 +209,4 @@ c.savefig('training_testingaccuracy_LR.png')
 input()
 
 #plt.close('all')
+'''
