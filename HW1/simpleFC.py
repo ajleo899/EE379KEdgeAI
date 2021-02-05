@@ -71,7 +71,7 @@ class SimpleFC(nn.Module):
 probabilities = [0.0,0.2,0.5,0.8]
 count = 1
 for rate in probabilities:
-    print('DROPOUT RATE: ' + rate)
+    print('DROPOUT RATE: ' + str(rate))
     model = SimpleFC(input_size, num_classes, rate)
 
     # Define your loss and optimizer
