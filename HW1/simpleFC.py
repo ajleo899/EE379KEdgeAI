@@ -37,13 +37,19 @@ random_seed = 1
 torch.manual_seed(random_seed)
 
 # MNIST Dataset (Images and Labels)
-train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=0.1307, std=0.3081)]), download=True)
-test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=0.1307, std=0.3081)]))
+train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.ToTensor(), download=True)
+test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.ToTensor())
 #print(test_dataset[0])
+train_dataset_norm = dsets.MNIST(root='data', train=True, transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=0.1307, std=0.3081)]), download=True)
+test_dataset_norm = dsets.MNIST(root='data', train=False, transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=0.1307, std=0.3081)]))
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # Dataset Loader (Input Pipeline)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+
+train_loader_norm = torch.utils.data.DataLoader(dataset=train_dataset_norm, batch_size=batch_size, shuffle=True)
+test_loader_norm = torch.utils.data.DataLoader(dataset=test_dataset_norm, batch_size=batch_size, shuffle=False)
 
 
 # Define your model
@@ -69,63 +75,92 @@ class SimpleFC(nn.Module):
         return out
 
 probabilities = [0.0,0.2,0.5,0.8]
-count = 1
-for rate in probabilities:
-    print('DROPOUT RATE: ' + str(rate))
-    model = SimpleFC(input_size, num_classes, rate)
+datasets_looper = []
+datasets_looper.append(test_loader)
+datasets_looper.append(test_loader_norm)
+datasets_looper_train = []
+datasets_looper_train.append(train_loader)
+datasets_looper_train.append(train_loader_norm)
 
-    # Define your loss and optimizer
-    criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+for z in range(len(datasets_looper)):
 
-    epoch_losses = np.zeros(num_epochs)
-    epoch_losses_test = np.zeros(num_epochs)
-    accuracy_train = np.zeros(num_epochs)
-    accuracy_test = np.zeros(num_epochs)
-    
-    for epoch in range(num_epochs):
-        # Training phase loop
+    count = 1
+    for rate in probabilities:
+        print('DROPOUT RATE: ' + str(rate))
+        if z == 0:
+            print('NOT NORMALIZED')
+        else:
+            print('NORMALIZED')
+        model = SimpleFC(input_size, num_classes, rate)
+        model.to(device)
+        # Define your loss and optimizer
+        criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
+        optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+
+        epoch_losses = np.zeros(num_epochs)
+        epoch_losses_test = np.zeros(num_epochs)
+        accuracy_train = np.zeros(num_epochs)
+        accuracy_test = np.zeros(num_epochs)
+
+        #starter1, ender1 = torch.cuda.Event(enable_timing=True),   torch.cuda.Event(enable_timing=True)
+        #timings1 = 0
+
+        #starter1.record()
+        t = time.perf_counter()
         
-        train_correct = 0
-        train_total = 0
-        train_loss = 0
-        # Sets the model in training mode.
-        model = model.train()
-        start = time.time()
-        for batch_idx, (images, labels) in enumerate(train_loader):
-            # Here we vectorize the 28*28 images as several 784-dimensional inputs
-            images = images.view(-1, input_size)
-            # Sets the gradients to zero
-            optimizer.zero_grad()
-            # The actual inference
-            outputs = model(images)
-            # Compute the loss between the predictions (outputs) and the ground-truth labels
-            loss = criterion(outputs, labels)
-            # Do backpropagation to update the parameters of your model
-            loss.backward()
-            # Performs a single optimization step (parameter update)
-            optimizer.step()
-            train_loss += loss.item()
-            # The outputs are one-hot labels, we need to find the actual predicted
-            # labels which have the highest output confidence
-            _, predicted = outputs.max(1)
-            train_total += labels.size(0)
-            train_correct += predicted.eq(labels).sum().item()
-            # Print every 100 steps the following information
-            if (batch_idx + 1) % 100 == 0:
-                print('Epoch: [%d/%d], Step: [%d/%d], Loss: %.4f Acc: %.2f%%' % (epoch + 1, num_epochs, batch_idx + 1,
-                                                                                len(train_dataset) // batch_size,
-                                                                                train_loss / (batch_idx + 1),
-                                                                                100. * train_correct / train_total))
-        
-        end = time.time()
-        print("Time to Train: " + str(end - start))
+        for epoch in range(num_epochs):
+            # Training phase loop
+            
+            train_correct = 0
+            train_total = 0
+            train_loss = 0
+            # Sets the model in training mode.
+            model = model.train()
+            #start = time.time()
+            for batch_idx, (images, labels) in enumerate(datasets_looper_train[z]):
+                # Here we vectorize the 28*28 images as several 784-dimensional inputs
+                images = images.view(-1, input_size)
+                images = images.to(device)
+                labels = labels.to(device)
+                # Sets the gradients to zero
+                optimizer.zero_grad()
+                # The actual inference
+                outputs = model(images)
+                # Compute the loss between the predictions (outputs) and the ground-truth labels
+                loss = criterion(outputs, labels).to(device)
+                # Do backpropagation to update the parameters of your model
+                loss.backward()
+                # Performs a single optimization step (parameter update)
+                optimizer.step()
+                train_loss += loss.item()
+                # The outputs are one-hot labels, we need to find the actual predicted
+                # labels which have the highest output confidence
+                _, predicted = outputs.max(1)
+                train_total += labels.size(0)
+                train_correct += predicted.eq(labels).sum().item()
+                # Print every 100 steps the following information
+                if (batch_idx + 1) % 100 == 0:
+                    print('Epoch: [%d/%d], Step: [%d/%d], Loss: %.4f Acc: %.2f%%' % (epoch + 1, num_epochs, batch_idx + 1,
+                                                                                    len(train_dataset) // batch_size,
+                                                                                    train_loss / (batch_idx + 1),
+                                                                                    100. * train_correct / train_total))
+            
+            #end = time.time()
+            #print("Time to Train: " + str(end - start))
 
-        epoch_losses[epoch] = train_loss   
-        accuracy_train[epoch] = 100. * train_correct / train_total
-        #print(epoch_losses)
+            epoch_losses[epoch] = train_loss   
+            accuracy_train[epoch] = 100. * train_correct / train_total
+            #print(epoch_losses)
 
-        # Testing phase loop
+        ExecTime = time.perf_counter() - t
+        print("Total Time to Train: " + str(ExecTime))
+        '''ender1.record()
+        torch.cuda.synchronize()
+        curr_time = starter1.elapsed_time(ender1)
+        timings1 = curr_time
+        print('The total time to train: ' + str(timings1))'''
+
+            # Testing phase loop
         test_correct = 0
         test_total = 0
         test_loss = 0
@@ -134,40 +169,44 @@ for rate in probabilities:
         # Disabling gradient calculation is useful for inference.
         # It will reduce memory consumption for computations.
         with torch.no_grad():
-            for batch_idx, (images, labels) in enumerate(test_loader):
+            for batch_idx, (images, labels) in enumerate(datasets_looper[z]):
                 # Here we vectorize the 28*28 images as several 784-dimensional inputs
                 images = images.view(-1, input_size)
+                images = images.to(device)
+                labels = labels.to(device)
                 # Perform the actual inference
                 outputs = model(images)
                 # Compute the loss
-                loss = criterion(outputs, labels)
+                loss = criterion(outputs, labels).to(device)
                 test_loss += loss.item()
                 # The outputs are one-hot labels, we need to find the actual predicted
                 # labels which have the highest output confidence
                 _, predicted = torch.max(outputs.data, 1)
                 test_total += labels.size(0)
                 test_correct += predicted.eq(labels).sum().item()
+        #print(z)
+
         print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
-        epoch_losses_test[epoch] = test_loss
-        accuracy_test[epoch] = 100. * test_correct / test_total
-    
-    # Searching for largest training accuracy over all epochs, to report
-    max = 0
-    for i in range(0, len(accuracy_train)):    
-        # Compare elements of array with max    
-        if(accuracy_train[i] > max):    
-            max = accuracy_train[i];
-    training_acc_result = "Dropout rate: " + str(rate) + ", training accuracy: " + str(max)
-    print(training_acc_result)
+        #epoch_losses_test[epoch] = test_loss
+        #accuracy_test[epoch] = 100. * test_correct / test_total
+        
+        # Searching for largest training accuracy over all epochs, to report
+        max = 0
+        for i in range(0, len(accuracy_train)):    
+            # Compare elements of array with max    
+            if(accuracy_train[i] > max):    
+                max = accuracy_train[i];
+        training_acc_result = "Dropout rate: " + str(rate) + ", training accuracy: " + str(max)
+        print(training_acc_result)
 
     # Searching for largest testing accuracy over all epochs, to report
-    max = 0
+    '''max = 0
     for i in range(0, len(accuracy_test)):    
         # Compare elements of array with max    
         if(accuracy_test[i] > max):    
             max = accuracy_test[i];
     testing_acc_result = "Dropout rate: " + str(rate) + ", testing accuracy: " + str(max)
-    print(testing_acc_result)
+    print(testing_acc_result)'''''
     
     '''# Writing results to a CSV file 
     with open('P2Q3.csv', mode='w') as employee_file:
