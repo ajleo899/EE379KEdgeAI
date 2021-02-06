@@ -4,6 +4,10 @@ import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 import torch.nn.functional as F
 import argparse
+import thop
+from thop import profile
+import torchsummary
+from torchsummary import summary
 
 # Argument parser
 parser = argparse.ArgumentParser(description='EE397K HW1 - SimpleCNN')
@@ -32,10 +36,10 @@ torch.manual_seed(random_seed)
 
 # MNIST Dataset (Images and Labels)
 # TODO: Insert here the normalized MNIST dataset
-train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.Compose([transforms.ToTensor(), Normalize(mean=0.1307, std=0.3081)]), download=True)
-test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.Compose([transforms.ToTensor(), Normalize(mean=0.1307, std=0.3081)])
+train_dataset = dsets.MNIST(root='data', train=True, transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=0.1307, std=0.3081)]), download=True)
+test_dataset = dsets.MNIST(root='data', train=False, transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=0.1307, std=0.3081)]))
 
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Dataset Loader (Input Pipeline)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
@@ -62,6 +66,7 @@ class SimpleCNN(nn.Module):
 
 
 model = SimpleCNN(num_classes)
+model = model.to(device)
 
 # Define your loss and optimizer
 criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
@@ -76,12 +81,13 @@ for epoch in range(num_epochs):
     # Sets the model in training mode.
     model = model.train()
     for batch_idx, (images, labels) in enumerate(train_loader):
+        images, labels = images.to(device), labels.to(device)
         # Sets the gradients to zero
         optimizer.zero_grad()
         # The actual inference
         outputs = model(images)
         # Compute the loss between the predictions (outputs) and the ground-truth labels
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs, labels).to(device)
         # Do backpropagation to update the parameters of your model
         loss.backward()
         # Performs a single optimization step (parameter update)
@@ -108,10 +114,11 @@ for epoch in range(num_epochs):
     # It will reduce memory consumption for computations.
     with torch.no_grad():
         for batch_idx, (images, labels) in enumerate(test_loader):
+            images, labels = images.to(device), labels.to(device)
             # Perform the actual inference
             outputs = model(images)
             # Compute the loss
-            loss = criterion(outputs, labels)
+            loss = criterion(outputs, labels).to(device)
             test_loss += loss.item()
             # The outputs are one-hot labels, we need to find the actual predicted
             # labels which have the highest output confidence
@@ -120,3 +127,14 @@ for epoch in range(num_epochs):
             test_correct += predicted.eq(labels).sum().item()
 
     print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
+    
+# GMACs and GFLOPs
+macs, params = profile(model, inputs=(torch.randn(1, 1, 28, 28), ))
+print("MACS: " + str(macs))
+print("GFLOPS: " + str(macs/2))
+
+# number of params, model size in MB
+summary(model, (1, 28, 28))
+
+# Saving model
+torch.save(model.state_dict(), 'CNN_saved_model')
