@@ -1,0 +1,149 @@
+Epoch: [1/25], Step: [100/468], Loss: 0.4720 Acc: 85.47%
+Epoch: [1/25], Step: [200/468], Loss: 0.3148 Acc: 90.38%
+Epoch: [1/25], Step: [300/468], Loss: 0.2513 Acc: 92.40%
+Epoch: [1/25], Step: [400/468], Loss: 0.2125 Acc: 93.64%
+Test accuracy: 97.99 % Test loss: 0.0651
+Epoch: [2/25], Step: [100/468], Loss: 0.0685 Acc: 98.02%
+Epoch: [2/25], Step: [200/468], Loss: 0.0700 Acc: 97.93%
+Epoch: [2/25], Step: [300/468], Loss: 0.0687 Acc: 97.99%
+Epoch: [2/25], Step: [400/468], Loss: 0.0670 Acc: 98.01%
+Test accuracy: 98.29 % Test loss: 0.0491
+Epoch: [3/25], Step: [100/468], Loss: 0.0554 Acc: 98.44%
+Epoch: [3/25], Step: [200/468], Loss: 0.0533 Acc: 98.37%
+Epoch: [3/25], Step: [300/468], Loss: 0.0519 Acc: 98.35%
+Epoch: [3/25], Step: [400/468], Loss: 0.0523 Acc: 98.36%
+Test accuracy: 98.32 % Test loss: 0.0486
+Epoch: [4/25], Step: [100/468], Loss: 0.0402 Acc: 98.73%
+Epoch: [4/25], Step: [200/468], Loss: 0.0422 Acc: 98.70%
+Epoch: [4/25], Step: [300/468], Loss: 0.0417 Acc: 98.70%
+Epoch: [4/25], Step: [400/468], Loss: 0.0425 Acc: 98.67%
+Test accuracy: 98.60 % Test loss: 0.0375
+Epoch: [5/25], Step: [100/468], Loss: 0.0357 Acc: 98.90%
+Epoch: [5/25], Step: [200/468], Loss: 0.0341 Acc: 98.96%
+Epoch: [5/25], Step: [300/468], Loss: 0.0353 Acc: 98.91%
+Epoch: [5/25], Step: [400/468], Loss: 0.0362 Acc: 98.87%
+Test accuracy: 98.51 % Test loss: 0.0407
+Epoch: [6/25], Step: [100/468], Loss: 0.0284 Acc: 99.05%
+Epoch: [6/25], Step: [200/468], Loss: 0.0320 Acc: 98.99%
+Epoch: [6/25], Step: [300/468], Loss: 0.0325 Acc: 98.99%
+Epoch: [6/25], Step: [400/468], Loss: 0.0320 Acc: 99.01%
+Test accuracy: 98.54 % Test loss: 0.0438
+Epoch: [7/25], Step: [100/468], Loss: 0.0310 Acc: 99.02%
+Epoch: [7/25], Step: [200/468], Loss: 0.0278 Acc: 99.14%
+Epoch: [7/25], Step: [300/468], Loss: 0.0275 Acc: 99.14%
+Epoch: [7/25], Step: [400/468], Loss: 0.0282 Acc: 99.13%
+Test accuracy: 98.69 % Test loss: 0.0403
+Epoch: [8/25], Step: [100/468], Loss: 0.0226 Acc: 99.34%
+Epoch: [8/25], Step: [200/468], Loss: 0.0246 Acc: 99.28%
+Epoch: [8/25], Step: [300/468], Loss: 0.0249 Acc: 99.24%
+Epoch: [8/25], Step: [400/468], Loss: 0.0249 Acc: 99.24%
+Test accuracy: 98.52 % Test loss: 0.0430
+Epoch: [9/25], Step: [100/468], Loss: 0.0238 Acc: 99.40%
+Epoch: [9/25], Step: [200/468], Loss: 0.0239 Acc: 99.29%
+Epoch: [9/25], Step: [300/468], Loss: 0.0228 Acc: 99.34%
+Epoch: [9/25], Step: [400/468], Loss: 0.0220 Acc: 99.33%
+Test accuracy: 98.72 % Test loss: 0.0403
+Epoch: [10/25], Step: [100/468], Loss: 0.0196 Acc: 99.41%
+Epoch: [10/25], Step: [200/468], Loss: 0.0187 Acc: 99.43%
+Epoch: [10/25], Step: [300/468], Loss: 0.0187 Acc: 99.42%
+Epoch: [10/25], Step: [400/468], Loss: 0.0193 Acc: 99.41%
+Test accuracy: 98.87 % Test loss: 0.0393
+Epoch: [11/25], Step: [100/468], Loss: 0.0113 Acc: 99.77%
+Epoch: [11/25], Step: [200/468], Loss: 0.0142 Acc: 99.65%
+Epoch: [11/25], Step: [300/468], Loss: 0.0166 Acc: 99.53%
+Epoch: [11/25], Step: [400/468], Loss: 0.0179 Acc: 99.49%
+Test accuracy: 98.66 % Test loss: 0.0427
+Epoch: [12/25], Step: [100/468], Loss: 0.0153 Acc: 99.58%
+Epoch: [12/25], Step: [200/468], Loss: 0.0156 Acc: 99.53%
+Epoch: [12/25], Step: [300/468], Loss: 0.0148 Acc: 99.57%
+Epoch: [12/25], Step: [400/468], Loss: 0.0152 Acc: 99.55%
+Test accuracy: 98.73 % Test loss: 0.0427
+Epoch: [13/25], Step: [100/468], Loss: 0.0096 Acc: 99.76%
+Epoch: [13/25], Step: [200/468], Loss: 0.0124 Acc: 99.64%
+Epoch: [13/25], Step: [300/468], Loss: 0.0135 Acc: 99.63%
+Epoch: [13/25], Step: [400/468], Loss: 0.0136 Acc: 99.62%
+Test accuracy: 98.79 % Test loss: 0.0402
+Epoch: [14/25], Step: [100/468], Loss: 0.0095 Acc: 99.75%
+Epoch: [14/25], Step: [200/468], Loss: 0.0119 Acc: 99.64%
+Epoch: [14/25], Step: [300/468], Loss: 0.0120 Acc: 99.65%
+Epoch: [14/25], Step: [400/468], Loss: 0.0116 Acc: 99.66%
+Test accuracy: 98.76 % Test loss: 0.0414
+Epoch: [15/25], Step: [100/468], Loss: 0.0079 Acc: 99.80%
+Epoch: [15/25], Step: [200/468], Loss: 0.0090 Acc: 99.77%
+Epoch: [15/25], Step: [300/468], Loss: 0.0106 Acc: 99.71%
+Epoch: [15/25], Step: [400/468], Loss: 0.0107 Acc: 99.71%
+Test accuracy: 98.67 % Test loss: 0.0439
+Epoch: [16/25], Step: [100/468], Loss: 0.0091 Acc: 99.73%
+Epoch: [16/25], Step: [200/468], Loss: 0.0079 Acc: 99.80%
+Epoch: [16/25], Step: [300/468], Loss: 0.0075 Acc: 99.82%
+Epoch: [16/25], Step: [400/468], Loss: 0.0081 Acc: 99.80%
+Test accuracy: 98.72 % Test loss: 0.0455
+Epoch: [17/25], Step: [100/468], Loss: 0.0073 Acc: 99.84%
+Epoch: [17/25], Step: [200/468], Loss: 0.0078 Acc: 99.83%
+Epoch: [17/25], Step: [300/468], Loss: 0.0079 Acc: 99.81%
+Epoch: [17/25], Step: [400/468], Loss: 0.0074 Acc: 99.82%
+Test accuracy: 98.74 % Test loss: 0.0478
+Epoch: [18/25], Step: [100/468], Loss: 0.0040 Acc: 99.92%
+Epoch: [18/25], Step: [200/468], Loss: 0.0044 Acc: 99.91%
+Epoch: [18/25], Step: [300/468], Loss: 0.0066 Acc: 99.84%
+Epoch: [18/25], Step: [400/468], Loss: 0.0070 Acc: 99.82%
+Test accuracy: 98.85 % Test loss: 0.0441
+Epoch: [19/25], Step: [100/468], Loss: 0.0038 Acc: 99.95%
+Epoch: [19/25], Step: [200/468], Loss: 0.0045 Acc: 99.94%
+Epoch: [19/25], Step: [300/468], Loss: 0.0050 Acc: 99.90%
+Epoch: [19/25], Step: [400/468], Loss: 0.0052 Acc: 99.89%
+Test accuracy: 98.72 % Test loss: 0.0476
+Epoch: [20/25], Step: [100/468], Loss: 0.0031 Acc: 99.96%
+Epoch: [20/25], Step: [200/468], Loss: 0.0045 Acc: 99.90%
+Epoch: [20/25], Step: [300/468], Loss: 0.0049 Acc: 99.88%
+Epoch: [20/25], Step: [400/468], Loss: 0.0049 Acc: 99.88%
+Test accuracy: 98.56 % Test loss: 0.0524
+Epoch: [21/25], Step: [100/468], Loss: 0.0036 Acc: 99.97%
+Epoch: [21/25], Step: [200/468], Loss: 0.0035 Acc: 99.95%
+Epoch: [21/25], Step: [300/468], Loss: 0.0039 Acc: 99.93%
+Epoch: [21/25], Step: [400/468], Loss: 0.0042 Acc: 99.92%
+Test accuracy: 98.81 % Test loss: 0.0483
+Epoch: [22/25], Step: [100/468], Loss: 0.0044 Acc: 99.89%
+Epoch: [22/25], Step: [200/468], Loss: 0.0042 Acc: 99.90%
+Epoch: [22/25], Step: [300/468], Loss: 0.0043 Acc: 99.90%
+Epoch: [22/25], Step: [400/468], Loss: 0.0041 Acc: 99.91%
+Test accuracy: 98.72 % Test loss: 0.0485
+Epoch: [23/25], Step: [100/468], Loss: 0.0024 Acc: 99.98%
+Epoch: [23/25], Step: [200/468], Loss: 0.0024 Acc: 99.98%
+Epoch: [23/25], Step: [300/468], Loss: 0.0025 Acc: 99.97%
+Epoch: [23/25], Step: [400/468], Loss: 0.0031 Acc: 99.95%
+Test accuracy: 98.68 % Test loss: 0.0503
+Epoch: [24/25], Step: [100/468], Loss: 0.0026 Acc: 99.97%
+Epoch: [24/25], Step: [200/468], Loss: 0.0024 Acc: 99.97%
+Epoch: [24/25], Step: [300/468], Loss: 0.0025 Acc: 99.97%
+Epoch: [24/25], Step: [400/468], Loss: 0.0024 Acc: 99.97%
+Test accuracy: 98.82 % Test loss: 0.0495
+Epoch: [25/25], Step: [100/468], Loss: 0.0016 Acc: 99.98%
+Epoch: [25/25], Step: [200/468], Loss: 0.0019 Acc: 99.97%
+Epoch: [25/25], Step: [300/468], Loss: 0.0023 Acc: 99.95%
+Epoch: [25/25], Step: [400/468], Loss: 0.0022 Acc: 99.96%
+Test accuracy: 98.76 % Test loss: 0.0524
+[INFO] Register count_convNd() for <class 'torch.nn.modules.conv.Conv2d'>.
+[INFO] Register zero_ops() for <class 'torch.nn.modules.pooling.MaxPool2d'>.
+[INFO] Register count_linear() for <class 'torch.nn.modules.linear.Linear'>.
+[91m[WARN] Cannot find rule for <class '__main__.SimpleCNN'>. Treat it as zero Macs and zero Params.[00m
+MACS: 3907456.0
+GFLOPS: 1953728.0
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv2d-1           [-1, 32, 28, 28]             320
+         MaxPool2d-2           [-1, 32, 14, 14]               0
+            Conv2d-3           [-1, 64, 14, 14]          18,496
+         MaxPool2d-4             [-1, 64, 7, 7]               0
+            Linear-5                   [-1, 10]          31,370
+================================================================
+Total params: 50,186
+Trainable params: 50,186
+Non-trainable params: 0
+----------------------------------------------------------------
+Input size (MB): 0.00
+Forward/backward pass size (MB): 0.36
+Params size (MB): 0.19
+Estimated Total Size (MB): 0.55
+----------------------------------------------------------------
