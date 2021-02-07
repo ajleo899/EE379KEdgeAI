@@ -129,7 +129,7 @@ for epoch in range(num_epochs):
     print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
     
 # GMACs and GFLOPs
-macs, params = profile(model, inputs=(torch.randn(1, 1, 28, 28), ))
+macs, params = profile(model, inputs=(torch.randn(1, 1, 28, 28).to(device), ))
 print("MACS: " + str(macs))
 print("GFLOPS: " + str(macs/2))
 
