@@ -8,6 +8,8 @@ import thop
 from thop import profile
 import torchsummary
 from torchsummary import summary
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Argument parser
 parser = argparse.ArgumentParser(description='EE397K HW1 - SimpleCNN')
@@ -72,6 +74,10 @@ model = model.to(device)
 criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
+epoch_losses = np.zeros(num_epochs)
+epoch_losses_test = np.zeros(num_epochs)
+accuracy_train = np.zeros(num_epochs)
+accuracy_test = np.zeros(num_epochs)
 
 for epoch in range(num_epochs):
     # Training phase loop
@@ -104,6 +110,10 @@ for epoch in range(num_epochs):
                                                                              len(train_dataset) // batch_size,
                                                                              train_loss / (batch_idx + 1),
                                                                              100. * train_correct / train_total))
+    
+    epoch_losses[epoch] = train_loss   
+    accuracy_train[epoch] = 100. * train_correct / train_total
+                                                                                     
     # Testing phase loop
     test_correct = 0
     test_total = 0
@@ -127,8 +137,36 @@ for epoch in range(num_epochs):
             test_correct += predicted.eq(labels).sum().item()
 
     print('Test accuracy: %.2f %% Test loss: %.4f' % (100. * test_correct / test_total, test_loss / (batch_idx + 1)))
-    
-# GMACs and GFLOPs
+    epoch_losses_test[epoch] = test_loss
+    accuracy_test[epoch] = 100. * test_correct / test_total
+
+# Loss plots
+x_val = np.arange(1, num_epochs+1)
+a = plt.figure(1)
+plt.plot(epoch_losses)
+plt.plot(epoch_losses_test)
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Training and Test Loss')
+plt.grid(True)
+plt.legend(["Training", "Testing"], loc ="upper right")
+a.savefig('simpleCNN_loss_plots_before_reducing.png')
+#a.savefig('simpleCNN_loss_plots_after_reducing.png')
+
+# Accuracy plots
+c = plt.figure(2)
+plt.plot(accuracy_train)
+plt.plot(accuracy_test)
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy %')
+plt.title('Training and Test Accuracy')
+plt.grid(True)
+plt.legend(["Training", "Testing"], loc ="lower right")
+c.savefig('simpleCNN_acc_plots_before_reducing.png')
+#c.savefig('simpleCNN_acc_plots_after_reducing.png')
+input()
+
+'''# GMACs and GFLOPs
 macs, params = profile(model, inputs=(torch.randn(1, 1, 28, 28).to(device), ))
 print("MACS: " + str(macs))
 print("GFLOPS: " + str(macs/2))
@@ -137,4 +175,4 @@ print("GFLOPS: " + str(macs/2))
 summary(model, (1, 28, 28))
 
 # Saving model
-torch.save(model.state_dict(), 'CNN_saved_model')
+torch.save(model.state_dict(), 'CNN_saved_model')'''
