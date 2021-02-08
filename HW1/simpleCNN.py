@@ -51,11 +51,11 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch
 class SimpleCNN(nn.Module):
     def __init__(self, num_classes):
         super(SimpleCNN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(1, 4, kernel_size=3, stride=1, padding=1) # 32 --> 4 output feature maps
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(4, 8, kernel_size=3, stride=1, padding=1) # 64 --> 8 output feature maps
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.linear1 = nn.Linear(7 * 7 * 64, num_classes)
+        self.linear1 = nn.Linear(7 * 7 * 8, num_classes)
 
     def forward(self, x):
         out = self.conv1(x)
@@ -147,11 +147,11 @@ plt.plot(epoch_losses)
 plt.plot(epoch_losses_test)
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
-plt.title('Training and Test Loss')
+plt.title('Training and Test Loss After Reducing Complexity')
 plt.grid(True)
 plt.legend(["Training", "Testing"], loc ="upper right")
-a.savefig('simpleCNN_loss_plots_before_reducing.png')
-#a.savefig('simpleCNN_loss_plots_after_reducing.png')
+#a.savefig('simpleCNN_loss_plots_before_reducing.png')
+a.savefig('simpleCNN_loss_plots_after_reducing.png')
 
 # Accuracy plots
 c = plt.figure(2)
@@ -159,14 +159,14 @@ plt.plot(accuracy_train)
 plt.plot(accuracy_test)
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy %')
-plt.title('Training and Test Accuracy')
+plt.title('Training and Test Accuracy After Reducing Complexity')
 plt.grid(True)
 plt.legend(["Training", "Testing"], loc ="lower right")
-c.savefig('simpleCNN_acc_plots_before_reducing.png')
-#c.savefig('simpleCNN_acc_plots_after_reducing.png')
-input()
+#c.savefig('simpleCNN_acc_plots_before_reducing.png')
+c.savefig('simpleCNN_acc_plots_after_reducing.png')
 
-'''# GMACs and GFLOPs
+
+# GMACs and GFLOPs
 macs, params = profile(model, inputs=(torch.randn(1, 1, 28, 28).to(device), ))
 print("MACS: " + str(macs))
 print("GFLOPS: " + str(macs/2))
@@ -175,4 +175,4 @@ print("GFLOPS: " + str(macs/2))
 summary(model, (1, 28, 28))
 
 # Saving model
-torch.save(model.state_dict(), 'CNN_saved_model')'''
+torch.save(model.state_dict(), 'CNN_saved_model')
