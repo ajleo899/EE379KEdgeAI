@@ -8,8 +8,28 @@ Created on Tue Mar  2 22:16:43 2021
 
 import sysfs_paths as sysfs
 import subprocess
+import telnetlib as tel
+import time
 from timeit import default_timer as timer
 
+
+def getTelnetPower(SP2_tel, last_power):
+    """
+    read power values using telnet.
+    """
+	# Get the latest data available from the telnet connection without blocking
+    tel_dat = str(SP2_tel.read_very_eager()) 
+    print('telnet reading:', tel_dat)
+    # find latest power measurement in the data
+    findex = tel_dat.rfind('\n')
+    findex2 = tel_dat[:findex].rfind('\n')
+    findex2 = findex2 if findex2 != -1 else 0
+    ln = tel_dat[findex2:findex].strip().split(',')
+    if len(ln) < 2:
+        total_power = last_power
+    else:
+        total_power = float(ln[-2])
+    return total_power
 
 def getAvailFreqs(cluster):
     """
@@ -55,8 +75,14 @@ print('current freq for big cluster:', getClusterFreq(4))
 # execution of your benchmark    
 start=timer()
 # run the benchmark
-command = "taskset --all-tasks 0x10 /home/odroid/HW2_files/TPBench.exe"   # 0x20: core 5
-proc_ben = subprocess.call(command.split())
+#SP2_tel = tel.Telnet("192.168.4.1")
+#power = 0.0
+print("Start Time: ", time.time())#time_stamp
+command = "taskset --all-tasks 0xF0 ./parsec_files/bodytrack ./parsec_files/sequenceB_261 4 260 3000 8 3 4 0"   # 0x20: core 5
 
+proc_ben = subprocess.call(command.split())
+print('End Time: ', time.time())
+#power = getTelnetPower(SP2_tel, power)
+#print("Total power for Benchmark: ", power)
 time_count = timer() - start
 print("Runtime is:", time_count)
