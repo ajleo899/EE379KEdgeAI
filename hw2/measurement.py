@@ -51,6 +51,10 @@ def getTemps():
     templ[3] = t1
     return templ
 
+def getClusterFreq(cluster_num):
+	with open(sysfs.fn_cluster_freq_read.format(cluster_num), 'r') as f:
+		return int(f.read().strip())
+
 # create a text file to log the results
 out_fname = 'log.txt'
 header = "time W usage_c0 usage_c1 usage_c2 usage_c3 usage_c4 usage_c5 usage_c6 usage_c7 temp4 temp5 temp6 temp7"
@@ -59,10 +63,17 @@ out_file = open(out_fname, 'w')
 out_file.write(header)
 out_file.write("\n")
 
+out_fname2 = 'log_q3_2.txt'
+header2 = "time W Freq Temp"
+header2 = "\t".join( header2.split(' ') )
+out_file2 = open(out_fname2, 'w')
+out_file2.write(header2)
+out_file2.write("\n")
+
 # measurement   
 SP2_tel = tel.Telnet("192.168.4.1")
 total_power = 0.0     
-for i in range(100):  
+while True:  
     last_time = time.time()#time_stamp
     # system power
     total_power = getTelnetPower(SP2_tel, total_power)
@@ -73,7 +84,7 @@ for i in range(100):
     # temp for big cores
     temps = getTemps()
     print('temp of big cores:', temps)
-
+    freq = getClusterFreq(4)
     time_stamp = last_time
 	# Data writeout:
     fmt_str = "{}\t"*14
@@ -81,9 +92,18 @@ for i in range(100):
 			usages[0], usages[1], usages[2], usages[3], \
 			usages[4], usages[5], usages[6], usages[7],\
 			temps[0], temps[1], temps[2], temps[3])
+
+
+    
         
     out_file.write(out_ln)
     out_file.write("\n")
+
+    fmt_str2 = "{}\t"*4
+    out_ln2 = fmt_str2.format(time_stamp, total_power, freq, max(temps))
+    out_file2.write(out_ln2)
+    out_file2.write("\n")
+
     elapsed = time.time() - last_time
     DELAY = 0.2
     time.sleep(max(0, DELAY - elapsed))
