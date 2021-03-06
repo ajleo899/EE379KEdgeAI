@@ -78,7 +78,7 @@ start=timer()
 #SP2_tel = tel.Telnet("192.168.4.1")
 #power = 0.0
 print("Start Time: ", time.time())#time_stamp
-command = "taskset --all-tasks 0xF0 ./parsec_files/bodytrack ./parsec_files/sequenceB_261 4 260 3000 8 3 4 0"   # 0x20: core 5
+command = "taskset --all-tasks 0xF0 ./parsec_files/blackscholes 4    ./parsec_files/in_10M_blackscholes.txt black_out"   # 0x20: core 5
 
 proc_ben = subprocess.call(command.split())
 print('End Time: ', time.time())
