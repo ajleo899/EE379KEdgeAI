@@ -63,7 +63,7 @@ out_file = open(out_fname, 'w')
 out_file.write(header)
 out_file.write("\n")
 
-out_fname2 = 'log_q3_2.txt'
+out_fname2 = 'log_q4.txt' # "log_q4_2"
 header2 = "time W Freq Temp"
 header2 = "\t".join( header2.split(' ') )
 out_file2 = open(out_fname2, 'w')
