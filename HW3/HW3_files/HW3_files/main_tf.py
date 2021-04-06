@@ -5,6 +5,8 @@ from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.losses import *
 from tensorflow.keras.utils import to_categorical
+import cvs
+from timeit import default_timer as timer
 
 # Argument parser
 parser = argparse.ArgumentParser(description='EE379K HW3 - Starter TensorFlow code')
@@ -48,8 +50,29 @@ print(Y_train.shape)
 # TODO: Encode the labels into one-hot format
 
 # TODO: Configures the model for training using compile method
-model.compile(optimizer="Adam", loss="categorical_crossentropy")
+model.compile(optimizer="Adam", loss="categorical_crossentropy", metric=["accuracy"])
 # TODO: Train the model using fit method
+start=timer()
 history = model.fit( X_train, Y_train, batch_size = batch_size, epochs = epochs)
-print(history.history)
+time_count = timer() - start
+print("Runtime is:", time_count)
+
+
+w = csv.writer(open("history_tf.csv", "w"))
+for key, val in history.items():
+    w.writerow([key, val])
+w.close()
+
+
+
+evaluation = model.evaluate(X_test, Y_test, batch_size=batch_size)
+
+x = csv.writer(open("history_tf.csv", "w"))
+for key, val in evaluation.items():
+    x.writerow([key, val])
+x.close()
+
+
+
+model.save_weights("vgg_tf.ckpt")
 # TODO: Save the weights of the model in .ckpt format
