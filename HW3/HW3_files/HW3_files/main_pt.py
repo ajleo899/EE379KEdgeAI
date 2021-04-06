@@ -3,6 +3,7 @@ import torch.nn as nn
 import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 import argparse
+from models.pytorch import vgg_pt
 
 # Argument parser
 parser = argparse.ArgumentParser(description='EE379K HW3 - Starter PyTorch code')
@@ -39,9 +40,10 @@ train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=bat
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
 # TODO: Get VGG11 model
-model = None
+model = vgg_pt.VGG()
 
 # TODO: Put the model on the GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Define your loss and optimizer
 criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
@@ -56,7 +58,7 @@ for epoch in range(num_epochs):
     model = model.train()
     for batch_idx, (images, labels) in enumerate(train_loader):
         # TODO: Put the images and labels on the GPU
-
+        images, labels = images.to(device), labels.to(device)
         # Sets the gradients to zero
         optimizer.zero_grad()
         # The actual inference
@@ -90,7 +92,7 @@ for epoch in range(num_epochs):
     with torch.no_grad():
         for batch_idx, (images, labels) in enumerate(test_loader):
             # TODO: Put the images and labels on the GPU
-
+            images, labels = images.to(device), labels.to(device)
             # Perform the actual inference
             outputs = model(images)
             # Compute the loss
@@ -104,3 +106,4 @@ for epoch in range(num_epochs):
     print('Test loss: %.4f Test accuracy: %.2f %%' % (test_loss / (batch_idx + 1),100. * test_correct / test_total))
 
     # TODO: Save the PyTorch model in .pt format
+    torch.save(model)
