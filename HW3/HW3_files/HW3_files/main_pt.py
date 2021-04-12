@@ -4,13 +4,15 @@ import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 import argparse
 from models.pytorch import vgg_pt
+from numpy import savetxt
+from timeit import default_timer as timer
 
 # Argument parser
 parser = argparse.ArgumentParser(description='EE379K HW3 - Starter PyTorch code')
 # Define the mini-batch size, here the size is 128 images per batch
 parser.add_argument('--batch_size', type=int, default=128, help='Number of samples per mini-batch')
 # Define the number of epochs for training
-parser.add_argument('--epochs', type=int, default=100, help='Number of epoch to train')
+parser.add_argument('--epochs', type=int, default=1, help='Number of epoch to train')
 args = parser.parse_args()
 
 # Always make assignments to local variables from your args at the beginning of your code for better
@@ -44,10 +46,16 @@ model = vgg_pt.VGG()
 
 # TODO: Put the model on the GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 
 # Define your loss and optimizer
 criterion = nn.CrossEntropyLoss()  # Softmax is internally computed.
 optimizer = torch.optim.Adam(model.parameters())
+
+start=timer()
+
+training_acc = []
+testing_acc =[]
 
 for epoch in range(num_epochs):
     # Training phase loop
@@ -81,6 +89,7 @@ for epoch in range(num_epochs):
                                                                              len(train_dataset) // batch_size,
                                                                              train_loss / (batch_idx + 1),
                                                                              100. * train_correct / train_total))
+        training_acc.append(100. * train_correct / train_total)
     # Testing phase loop
     test_correct = 0
     test_total = 0
@@ -104,6 +113,13 @@ for epoch in range(num_epochs):
             test_total += labels.size(0)
             test_correct += predicted.eq(labels).sum().item()
     print('Test loss: %.4f Test accuracy: %.2f %%' % (test_loss / (batch_idx + 1),100. * test_correct / test_total))
+    testing_acc.append(100. * test_correct / test_total)
 
     # TODO: Save the PyTorch model in .pt format
-    torch.save(model)
+time_count = timer() - start
+print("Runtime for PyTorch: " + str(time_count))
+print("The training accuracy: " + str(training_acc[len(training_acc)-1]))
+print("The testing accuracy: " + str(testing_acc[len(testing_acc)-1]))
+savetxt('pyTorch_trainingacc.csv', training_acc, delimiter=',', fmt='%f')
+savetxt('pyTorch_testingacc.csv', testing_acc, delimiter=',', fmt='%f')
+torch.save(model.state_dict(), "model_weights_pt")
